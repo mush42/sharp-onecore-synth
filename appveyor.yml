@@ -6,11 +6,8 @@ branches:
     - /dev.*/
     - /release-.*/
 
-before_build:
-  - nuget restore
-
 build:
   project: OcSpeechEngine.sln
 
 artifacts:
-  - path: bin\Release
+  - path: .\\bin\\Release
