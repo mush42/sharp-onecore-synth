@@ -109,6 +109,7 @@ namespace OcSpeechEngine
         {
             currentVoiceId = synth.Voice.Id;
             player.AutoPlay = true;
+            player.PlaybackSession.PlaybackStateChanged += OnPlaybackStateChanged;
             player.MediaEnded += OnMediaEnded;
             player.MediaFailed += (sender, args) => State = OcSynthState.Ready;
         }
@@ -251,6 +252,12 @@ namespace OcSpeechEngine
             }
         }
 
+        private void OnPlaybackStateChanged(MediaPlaybackSession session, object args)
+        {
+            OcSynthState playerState = PlayerStateToSynthState(session.PlaybackState);
+            if (playerState != State && StateChanged != null)
+                State = playerState;
+        }
         private void OnMediaEnded(MediaPlayer sender, object args)
         {
             State = OcSynthState.Ready;
