@@ -5,10 +5,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace OcSpeechElements
+namespace OcPromptBuilder
 {
     
-    public enum SpeechElementKind
+    internal enum SpeechElementKind
     {
         Text = 0,
         Ssml = 2,
@@ -16,7 +16,7 @@ namespace OcSpeechElements
         Audio = 8
     }
 
-    public class SpeechElement
+    internal class SpeechElement
     {
         public SpeechElementKind Kind { get; private set; }
         public string Content { get; private set;  }
@@ -28,7 +28,7 @@ namespace OcSpeechElements
         }
     }
 
-    public class PromptBuilder
+    public class OcPromptBuilder
     {
         internal ConcurrentQueue<SpeechElement> speechQueue = new ConcurrentQueue<SpeechElement>();
         public void Clear()
@@ -37,8 +37,8 @@ namespace OcSpeechElements
             {
                 SpeechElement elm;
                 speechQueue.TryDequeue(out elm);
-                speechQueue = new ConcurrentQueue<SpeechElement>();
             }
+            speechQueue = new ConcurrentQueue<SpeechElement>();
         }
         public void AddText(string text)
         {

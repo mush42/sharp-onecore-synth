@@ -10,7 +10,7 @@ using Windows.Media.Playback;
 using Windows.Media.SpeechSynthesis;
 using Windows.Storage;
 using Windows.Storage.Streams;
-using OcSpeechElements;
+using OcPromptBuilder;
 
 namespace OcSpeechEngine
 {
@@ -60,7 +60,7 @@ namespace OcSpeechEngine
         public event TypedEventHandler<OcSpeechEngine, OcSynthState> StateChanged;
         public event TypedEventHandler<OcSpeechEngine, string> BookmarkReached;
         public event TypedEventHandler<OcSpeechEngine, string> VoiceChanged;
-        public PromptBuilder CurrentPrompt;
+        public OcPromptBuilder.OcPromptBuilder CurrentPrompt;
         public OcSynthState State {
             get
             {
@@ -173,7 +173,7 @@ namespace OcSpeechEngine
             presynthesizedText.Clear();
             CurrentPrompt?.Clear();
         }
-        public async Task SpeakAsync(PromptBuilder prompt)
+        public async Task SpeakAsync(OcPromptBuilder.OcPromptBuilder prompt)
         {
             CancelSpeech();
             foreach (SpeechElement element in prompt.speechQueue)
