@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Collections.Generic;
 using System.Collections.Concurrent;
 using System.Linq;
@@ -69,8 +70,14 @@ namespace OcSpeechEngine
             private set
             {
                 state = value;
-                if (StateChanged != null)
-                    Parallel.Invoke(() => StateChanged(this, value));
+                try
+                {
+                    if (StateChanged != null)
+                        Parallel.Invoke(() => StateChanged(this, value));
+                } catch (FieldAccessException)
+                {
+                    Debug.WriteLine("Faild to raise the StateChanged Event");
+                }
             }
         }
         public OnecoreVoiceInfo Voice {
@@ -110,12 +117,16 @@ namespace OcSpeechEngine
             player.AutoPlay = true;
             player.PlaybackSession.PlaybackStateChanged += OnPlaybackStateChanged;
             player.MediaEnded += OnMediaEnded;
-            player.MediaFailed += (sender, args) => State = OcSynthState.Ready;
+            player.MediaFailed += OnPlayerMediaFaild;
         }
 
         ~OcSpeechEngine()
         {
             CancelSpeech();
+            player.PlaybackSession.PlaybackStateChanged -= OnPlaybackStateChanged;
+            player.MediaEnded -= OnMediaEnded;
+            player.MediaFailed -= OnPlayerMediaFaild;
+            State = OcSynthState.Ready;
         }
         public IEnumerable<OnecoreVoiceInfo> GetVoices()
         {
@@ -262,5 +273,11 @@ namespace OcSpeechEngine
             State = OcSynthState.Ready;
             ProcessSpeechPrompt().RunSynchronously();
         }
+
+        private void OnPlayerMediaFaild(MediaPlayer sender, object args)
+        {
+            State = OcSynthState.Ready;
+        }
+
     }
 }
