@@ -70,7 +70,7 @@ namespace OcSpeechEngine
             {
                 state = value;
                 if (StateChanged != null)
-                    Task.Run(() => StateChanged(this, value));
+                    Parallel.Invoke(() => StateChanged(this, value));
             }
         }
         public OnecoreVoiceInfo Voice {
@@ -81,14 +81,13 @@ namespace OcSpeechEngine
                         select v).Single();
             }
             set {
-
                 if (value.Id.Equals(currentVoiceId))
                     return;
                 VoiceInformation voice = GetVoiceById(value.Id);
                 synth.Voice = voice;
                 currentVoiceId = value.Id;
                 if (VoiceChanged != null)
-                    VoiceChanged(this, value.Id);
+                    Parallel.Invoke(() => VoiceChanged(this, value.Id));
             }
         }
         public double Volume
@@ -226,8 +225,8 @@ namespace OcSpeechEngine
                     break;
                 case SpeechElementKind.Bookmark:
                     if (BookmarkReached != null)
-                        Task.Run(() => BookmarkReached(this, speechelm.Content));
-                    ProcessSpeechPrompt().RunSynchronously();
+                        Parallel.Invoke(() => BookmarkReached(this, speechelm.Content));
+                    await ProcessSpeechPrompt();
                     break;
                 case SpeechElementKind.Audio:
                     StorageFile file = await StorageFile.GetFileFromPathAsync(speechelm.Content);
