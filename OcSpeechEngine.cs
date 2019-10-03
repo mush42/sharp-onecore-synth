@@ -70,14 +70,8 @@ namespace OcSpeechEngine
             private set
             {
                 state = value;
-                try
-                {
-                    if (StateChanged != null)
-                        Parallel.Invoke(() => StateChanged(this, value));
-                } catch (FieldAccessException)
-                {
-                    Debug.WriteLine("Faild to raise the StateChanged Event");
-                }
+                if (StateChanged != null)
+                    Parallel.Invoke(() => StateChanged(this, value));
             }
         }
         public OnecoreVoiceInfo Voice {
@@ -119,8 +113,11 @@ namespace OcSpeechEngine
             player.MediaEnded += OnMediaEnded;
             player.MediaFailed += OnPlayerMediaFaild;
         }
-
         ~OcSpeechEngine()
+        {
+            player.Dispose();
+        }
+        public void Close()
         {
             CancelSpeech();
             player.PlaybackSession.PlaybackStateChanged -= OnPlaybackStateChanged;
