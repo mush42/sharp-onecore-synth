@@ -137,7 +137,7 @@
   <PropertyGroup>
     <SignAssembly>false</SignAssembly>
   </PropertyGroup>
-  <Import Project="C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\MSBuild\Microsoft\WindowsXaml\v16.0\Microsoft.Windows.UI.Xaml.CSharp.Targets" />
+  <Import Project="$(MSBuildExtensionsPath)\Microsoft\WindowsXaml\v$(VisualStudioVersion)\Microsoft.Windows.UI.Xaml.CSharp.targets" />
   <PropertyGroup>
     <PreBuildEvent>	</PreBuildEvent>
   </PropertyGroup>
