@@ -57,10 +57,10 @@ namespace OcSpeechEngine
         private string currentVoiceId;
         private OcSynthState state = OcSynthState.Ready;
         private readonly ConcurrentDictionary<int, SpeechSynthesisStream> presynthesizedText = new ConcurrentDictionary<int, SpeechSynthesisStream>();
+        private  OcPromptBuilder CurrentPrompt;
         public event TypedEventHandler<OcSpeechEngine, OcSynthState> StateChanged;
         public event TypedEventHandler<OcSpeechEngine, string> BookmarkReached;
         public event TypedEventHandler<OcSpeechEngine, string> VoiceChanged;
-        public OcPromptBuilder.OcPromptBuilder CurrentPrompt;
         public OcSynthState State {
             get
             {
@@ -103,7 +103,7 @@ namespace OcSpeechEngine
                 player.Volume = value / 100;
             }
         }
-
+        
         public OcSpeechEngine()
         {
             currentVoiceId = synth.Voice.Id;

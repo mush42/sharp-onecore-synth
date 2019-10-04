@@ -16,12 +16,12 @@ namespace OcPromptBuilder
         Audio = 8
     }
 
-    internal class SpeechElement
+    internal struct SpeechElement
     {
-        public SpeechElementKind Kind { get; private set; }
-        public string Content { get; private set;  }
+        internal SpeechElementKind Kind { get; private set; }
+        internal string Content { get; private set;  }
 
-        public SpeechElement(SpeechElementKind kind, string content)
+        internal SpeechElement(SpeechElementKind kind, string content)
         {
             Kind = kind;
             Content = content;
