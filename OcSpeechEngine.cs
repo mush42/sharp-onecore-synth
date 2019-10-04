@@ -58,7 +58,7 @@ namespace OcSpeechEngine
         private string currentVoiceId;
         private OcSynthState state = OcSynthState.Ready;
         private readonly ConcurrentDictionary<int, SpeechSynthesisStream> presynthesizedText = new ConcurrentDictionary<int, SpeechSynthesisStream>();
-        private  OcPromptBuilder CurrentPrompt;
+        private OcPromptBuilder.OcPromptBuilder CurrentPrompt;
         public event TypedEventHandler<OcSpeechEngine, OcSynthState> StateChanged;
         public event TypedEventHandler<OcSpeechEngine, string> BookmarkReached;
         public event TypedEventHandler<OcSpeechEngine, string> VoiceChanged;
@@ -125,6 +125,7 @@ namespace OcSpeechEngine
             player.MediaFailed -= OnPlayerMediaFaild;
             State = OcSynthState.Ready;
         }
+        
         public IEnumerable<OnecoreVoiceInfo> GetVoices()
         {
             List<OnecoreVoiceInfo> voiceList = new List<OnecoreVoiceInfo>();
@@ -136,7 +137,7 @@ namespace OcSpeechEngine
             voiceList.Sort();
             return voiceList;
         }
-
+        
         public void SelectVoice(string voiceId)
         {
             OnecoreVoiceInfo voice = (
@@ -145,6 +146,7 @@ namespace OcSpeechEngine
                 select vinfo).Single();
             Voice = voice;
         }
+        
         private VoiceInformation GetVoiceById(string voiceId)
         {
             return (
@@ -152,13 +154,14 @@ namespace OcSpeechEngine
                  where v.Id.Equals(voiceId)
                  select v).Single();
         }
-
+        
         private void Stop()
         {
             player.Pause();
             player.Source = MediaSource.CreateFromStream(new InMemoryRandomAccessStream(), "");
             State = OcSynthState.Ready;
         }
+        
         public void Pause()
         {
             if (State.Equals(OcSynthState.Busy))
@@ -167,6 +170,7 @@ namespace OcSpeechEngine
                 State = OcSynthState.Paused;
             }
         }
+        
         public void Resume()
         {
             if (State.Equals(OcSynthState.Paused))
@@ -175,12 +179,14 @@ namespace OcSpeechEngine
                 State = OcSynthState.Busy;
             }
         }
+        
         public void CancelSpeech()
         {
             Stop();
             presynthesizedText.Clear();
             CurrentPrompt?.Clear();
         }
+        
         public async Task SpeakAsync(OcPromptBuilder.OcPromptBuilder prompt)
         {
             CancelSpeech();
@@ -191,7 +197,7 @@ namespace OcSpeechEngine
             CurrentPrompt = prompt;
             await ProcessSpeechPrompt();
         }
-
+        
         private void PreSynthesizeText(SpeechElement element)
         {
             if (element.Kind.Equals(SpeechElementKind.Text) || element.Kind.Equals(SpeechElementKind.Ssml))
@@ -202,6 +208,7 @@ namespace OcSpeechEngine
                 });
             }
         }
+        
         private async Task Synthesize(string content, bool isSsml = false)
         {
             SpeechSynthesisStream stream;
@@ -219,6 +226,7 @@ namespace OcSpeechEngine
             player.Source = MediaSource.CreateFromStream(stream, stream.ContentType);
             State = OcSynthState.Busy;
         }
+        
         private async Task ProcessSpeechPrompt()
         {
             SpeechElement speechelm;
@@ -245,6 +253,7 @@ namespace OcSpeechEngine
                     throw new InvalidOperationException("Unplayable item");
             }
         }
+        
         private OcSynthState PlayerStateToSynthState(MediaPlaybackState state)
         {
             if (state == MediaPlaybackState.Buffering || state == MediaPlaybackState.Opening || state == MediaPlaybackState.Playing)
@@ -258,19 +267,20 @@ namespace OcSpeechEngine
                 return OcSynthState.Ready;
             }
         }
-
+        
         private void OnPlaybackStateChanged(MediaPlaybackSession session, object args)
         {
             OcSynthState playerState = PlayerStateToSynthState(session.PlaybackState);
             if (playerState != State && StateChanged != null)
                 State = playerState;
         }
+        
         private void OnMediaEnded(MediaPlayer sender, object args)
         {
             State = OcSynthState.Ready;
             ProcessSpeechPrompt().RunSynchronously();
         }
-
+        
         private void OnPlayerMediaFaild(MediaPlayer sender, object args)
         {
             State = OcSynthState.Ready;
