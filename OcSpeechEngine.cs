@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Collections.Generic;
 using System.Collections.Concurrent;
 using System.Linq;
@@ -110,12 +111,19 @@ namespace OcSpeechEngine
             player.AutoPlay = true;
             player.PlaybackSession.PlaybackStateChanged += OnPlaybackStateChanged;
             player.MediaEnded += OnMediaEnded;
-            player.MediaFailed += (sender, args) => State = OcSynthState.Ready;
+            player.MediaFailed += OnPlayerMediaFaild;
         }
-
         ~OcSpeechEngine()
         {
+            player.Dispose();
+        }
+        public void Close()
+        {
             CancelSpeech();
+            player.PlaybackSession.PlaybackStateChanged -= OnPlaybackStateChanged;
+            player.MediaEnded -= OnMediaEnded;
+            player.MediaFailed -= OnPlayerMediaFaild;
+            State = OcSynthState.Ready;
         }
         public IEnumerable<OnecoreVoiceInfo> GetVoices()
         {
@@ -262,5 +270,11 @@ namespace OcSpeechEngine
             State = OcSynthState.Ready;
             ProcessSpeechPrompt().RunSynchronously();
         }
+
+        private void OnPlayerMediaFaild(MediaPlayer sender, object args)
+        {
+            State = OcSynthState.Ready;
+        }
+
     }
 }
